@@ -42,11 +42,12 @@ class SLAM_Master(Node):
         # Initialize the transform broadcaster
         self.tf_broadcaster = TransformBroadcaster(self)
 
-        self.target_frame_0 = self.declare_parameter(
-          'target_frame_0', 'tag36h11:0').get_parameter_value().string_value
-        
-        self.target_frame_1 = self.declare_parameter(
-          'target_frame_1', 'tag36h11:1').get_parameter_value().string_value
+        self.target_frames = [] 
+        for i in range(8):
+            target_name = "target_frame_" + str(i)
+            tag_name = 'tag36h11:' + str(i)
+            self.target_frames.append(self.declare_parameter(target_name, tag_name).get_parameter_value().string_value)
+
         
         # self.target_frame = self.declare_parameter(
         #   'target_frame', 'tag36h11:0_transient').get_parameter_value().string_value
@@ -69,21 +70,22 @@ class SLAM_Master(Node):
         try:
             t_0 = self.tf_buffer.lookup_transform(
                 to_frame_rel,
-                self.target_frame_0,
-                rclpy.time.Time())
+                self.target_frames[0],
+                rclpy.time.Time(),timeout=rclpy.duration.Duration(seconds=1.0))
             self.prev_t_0 = t_0
         except TransformException as ex:
-            m = "1"
+            pass
             
         
         try:
             t_1 = self.tf_buffer.lookup_transform(
                 to_frame_rel,
-                self.target_frame_1,
-                rclpy.time.Time())
+                self.target_frames[1],
+                rclpy.time.Time(),
+                timeout=rclpy.duration.Duration(seconds=1.0))
             self.prev_t_1 = t_1
         except TransformException as ex:
-            m = "1"
+            pass
             #self.get_logger().info(f'Could not transform {to_frame_rel} to {from_frame_rel}: {ex}')
         
         self.prev_t_1.header.stamp = self.get_clock().now().to_msg()

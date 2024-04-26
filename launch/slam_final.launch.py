@@ -126,6 +126,13 @@ def generate_launch_description():
         output='screen'
     )
 
+    master = Node(
+        package='slam_master',
+        executable='master_node',
+        name='master_node',
+        output='screen'
+    )
+
     # Rviz
     config_path = '/workspaces/isaac_ros-dev/src/isaac_ros_visual_slam/isaac_ros_visual_slam/rviz/realsense.custom.rviz'
     print(config_path)
@@ -137,4 +144,4 @@ def generate_launch_description():
         output='screen')
 
 
-    return launch.LaunchDescription([rviz, visual_slam_launch_container, realsense_camera_node, apriltag_container])
+    return launch.LaunchDescription([master, rviz, visual_slam_launch_container, realsense_camera_node, apriltag_container])

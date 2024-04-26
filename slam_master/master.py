@@ -93,13 +93,7 @@ class SLAM_Master(Node):
         self.prev_t_0.header.frame_id = 'map'
         self.prev_t_0.child_frame_id = 'tag36h11:0_transient'
         self.tf_broadcaster.sendTransform([self.prev_t_0,self.prev_t_1])
-        
 
-        
-        #self.get_logger().info(t.transform.translation.x)
-
-
-        #self.get_logger().info('Publishing: "%s"' % msg.data)
 
 
 def main(args=None):

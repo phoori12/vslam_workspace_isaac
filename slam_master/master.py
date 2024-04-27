@@ -36,19 +36,22 @@ class SLAM_Master(Node):
         self.vo_pose_subscriber  # prevent unused variable warning
 
         # TF STUFF
-        self.prev_t_0 = TransformStamped()
-        self.prev_t_1 = TransformStamped()
+        # self.prev_t_0 = TransformStamped()
+        # self.prev_t_1 = TransformStamped()
 
         # Initialize the transform broadcaster
         self.tf_broadcaster = TransformBroadcaster(self)
 
+        self.prev_t = []
         self.target_frames = [] 
+        self.publish_markers = []
         for i in range(8):
             target_name = "target_frame_" + str(i)
             tag_name = 'tag36h11:' + str(i)
             self.target_frames.append(self.declare_parameter(target_name, tag_name).get_parameter_value().string_value)
+            self.prev_t.append(TransformStamped())
+            self.publish_markers.append(False)
 
-        
         # self.target_frame = self.declare_parameter(
         #   'target_frame', 'tag36h11:0_transient').get_parameter_value().string_value
 
@@ -67,34 +70,25 @@ class SLAM_Master(Node):
         # compute transformations
         to_frame_rel = 'map'
 
-        try:
-            t_0 = self.tf_buffer.lookup_transform(
-                to_frame_rel,
-                self.target_frames[0],
-                rclpy.time.Time(),timeout=rclpy.duration.Duration(seconds=1.0))
-            self.prev_t_0 = t_0
-        except TransformException as ex:
-            pass
-            
-        
-        try:
-            t_1 = self.tf_buffer.lookup_transform(
-                to_frame_rel,
-                self.target_frames[1],
-                rclpy.time.Time(),
-                timeout=rclpy.duration.Duration(seconds=1.0))
-            self.prev_t_1 = t_1
-        except TransformException as ex:
-            pass
-            #self.get_logger().info(f'Could not transform {to_frame_rel} to {from_frame_rel}: {ex}')
-        
-        self.prev_t_1.header.stamp = self.get_clock().now().to_msg()
-        self.prev_t_1.header.frame_id = 'map'
-        self.prev_t_1.child_frame_id = 'tag36h11:1_transient'
-        self.prev_t_0.header.stamp = self.get_clock().now().to_msg()
-        self.prev_t_0.header.frame_id = 'map'
-        self.prev_t_0.child_frame_id = 'tag36h11:0_transient'
-        self.tf_broadcaster.sendTransform([self.prev_t_0,self.prev_t_1])
+        frames_publish = []
+        for i in range(8):
+            try:
+                t = self.tf_buffer.lookup_transform(
+                    to_frame_rel,
+                    self.target_frames[i],
+                    rclpy.time.Time())
+                self.prev_t[i] = t
+                self.publish_markers[i] = False
+            except TransformException as ex:
+                self.publish_markers[i] = True
+                
+            self.prev_t[i].header.stamp = self.get_clock().now().to_msg()
+            self.prev_t[i].header.frame_id = 'map'
+            self.prev_t[i].child_frame_id = 'tag36h11:' + str(i) + "_static"
+            if self.publish_markers[i] == True:
+                frames_publish.append(self.prev_t[i])
+
+        self.tf_broadcaster.sendTransform(frames_publish)
 
 
 

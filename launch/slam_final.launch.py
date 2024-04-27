@@ -22,7 +22,7 @@ from launch.actions import DeclareLaunchArgument
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import ComposableNodeContainer, Node
 from launch_ros.descriptions import ComposableNode
-from launch.conditions import UnlessCondition
+from launch.conditions import IfCondition, UnlessCondition
 
 
 def generate_launch_description():
@@ -41,7 +41,8 @@ def generate_launch_description():
         parameters=[{
             'output_width': 1920,
             'output_height': 1080,
-        }]
+        }],
+        condition=IfCondition(LaunchConfiguration('from_bag'))
     )
 
     apriltag_node = ComposableNode(
@@ -53,7 +54,8 @@ def generate_launch_description():
             'size': 0.08,
         }],
         remappings=[('/image', 'camera/color/image_raw'),
-                    ('/camera_info','camera/color/camera_info')]
+                    ('/camera_info','camera/color/camera_info')],
+        condition=IfCondition(LaunchConfiguration('from_bag'))
     )
 
     realsense_camera_node = Node(

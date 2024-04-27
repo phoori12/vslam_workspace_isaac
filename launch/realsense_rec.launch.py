@@ -40,7 +40,7 @@ def generate_launch_description():
 
     # Realsense
     realsense_launch = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(['/workspaces/isaac_ros-dev/launch/realsense_init.py']),
+        PythonLaunchDescriptionSource(['/workspaces/isaac_ros-dev/src/slam_master/launch/realsense_init.launch.py']),
         condition=IfCondition(LaunchConfiguration('launch_realsense')))
 
     # Bag recording
@@ -48,11 +48,9 @@ def generate_launch_description():
         '/tf_static',
         '/camera/color/camera_info',
         '/camera/color/image_raw',
-        '/camera/realsense_splitter_node/output/depth',
-        '/camera/depth/camera_info',
-        '/camera/realsense_splitter_node/output/infra_1',
+        '/camera/infra1/image_rect_raw',
         '/camera/infra1/camera_info',
-        '/camera/realsense_splitter_node/output/infra_2',
+        '/camera/infra2/image_rect_raw',
         '/camera/infra2/camera_info',
         '/camera/imu'
     ]

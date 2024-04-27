@@ -49,26 +49,6 @@ def generate_launch_description():
     load_composable_nodes = LoadComposableNodes(
         target_container=component_container_name_arg,
         composable_node_descriptions=[
-            # RealSense splitter node
-            ComposableNode(
-                namespace="camera",
-                name='realsense_splitter_node',
-                package='realsense_splitter',
-                plugin='nvblox::RealsenseSplitterNode',
-                parameters=[{
-                    'input_qos': 'SENSOR_DATA',
-                    'output_qos': 'SENSOR_DATA'
-                }],
-                remappings=[('input/infra_1', '/camera/infra1/image_rect_raw'),
-                            ('input/infra_1_metadata', '/camera/infra1/metadata'),
-                            ('input/infra_2', '/camera/infra2/image_rect_raw'),
-                            ('input/infra_2_metadata', '/camera/infra2/metadata'),
-                            ('input/depth', '/camera/depth/image_rect_raw'),
-                            ('input/depth_metadata', '/camera/depth/metadata'),
-                            ('input/pointcloud', '/camera/depth/color/points'),
-                            ('input/pointcloud_metadata',
-                             '/camera/depth/metadata'),
-                            ]),
             # Node Factory
             ComposableNode(
                 namespace="camera",
@@ -76,19 +56,12 @@ def generate_launch_description():
                 plugin='realsense2_camera::RealSenseNodeFactory',
                 parameters=[{
                 'json_file_path': '/workspaces/isaac_ros-dev/launch/realsense_presets/highaccuracy.json',
-                'rgb_camera.profile': '640x480x15',
-                'color_info_qos': 'SENSOR_DATA',
-                'color_qos': 'SENSOR_DATA',
-                'depth_module.profile': '640x480x60',
-                'depth_module.emitter_enabled': 1,
-                'depth_module.emitter_on_off': True,
-                'depth_qos': 'SENSOR_DATA',
-                'depth_info_qos': 'SENSOR_DATA',
-                'infra_qos': 'SENSOR_DATA',
+                'color_height': 1080,
+                'color_width': 1920,
                 'enable_infra1': True,
                 'enable_infra2': True,
                 'enable_color': True,
-                'enable_depth': True,
+                'enable_depth': False,
                 'enable_gyro': True,
                 'enable_accel': True,
                 'gyro_fps': 200,

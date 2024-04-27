@@ -18,12 +18,20 @@
 import os
 import launch
 from ament_index_python.packages import get_package_share_directory
-from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
+from launch.actions import DeclareLaunchArgument
+from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import ComposableNodeContainer, Node
 from launch_ros.descriptions import ComposableNode
+from launch.conditions import UnlessCondition
 
 
 def generate_launch_description():
+
+
+    from_bag_arg = DeclareLaunchArgument(
+        'from_bag', default_value='False',
+        description='Whether to run from a bag or live realsense data')
+    
     """Launch file which brings up visual slam node configured for RealSense."""
     rectify_node = ComposableNode(
         package='isaac_ros_image_proc',
@@ -31,8 +39,8 @@ def generate_launch_description():
         name='rectify',
         namespace='',
         parameters=[{
-            'output_width': 640,
-            'output_height': 480,
+            'output_width': 1920,
+            'output_height': 1080,
         }]
     )
 
@@ -44,8 +52,8 @@ def generate_launch_description():
         parameters=[{
             'size': 0.08,
         }],
-        remappings=[('/image', 'camera/infra1/image_rect_raw'),
-                    ('/camera_info','camera/infra1/camera_info')]
+        remappings=[('/image', 'camera/color/image_raw'),
+                    ('/camera_info','camera/color/camera_info')]
     )
 
     realsense_camera_node = Node(
@@ -55,8 +63,8 @@ def generate_launch_description():
         executable='realsense2_camera_node',
         parameters=[{
                 'json_file_path': '/workspaces/isaac_ros-dev/launch/realsense_presets/highaccuracy.json',
-                # 'color_height': 1080,
-                # 'color_width': 1920,
+                'color_height': 1080,
+                'color_width': 1920,
                 'enable_infra1': True,
                 'enable_infra2': True,
                 'enable_color': False,
@@ -69,7 +77,7 @@ def generate_launch_description():
                 'accel_fps': 200,
                 'unite_imu_method': 2
         }],
-        
+        condition=UnlessCondition(LaunchConfiguration('from_bag'))
     )
 
     visual_slam_node = ComposableNode(
@@ -144,4 +152,4 @@ def generate_launch_description():
         output='screen')
 
 
-    return launch.LaunchDescription([master, rviz, visual_slam_launch_container, realsense_camera_node, apriltag_container])
+    return launch.LaunchDescription([from_bag_arg, master, rviz, visual_slam_launch_container, realsense_camera_node, apriltag_container])

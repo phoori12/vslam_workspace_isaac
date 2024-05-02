@@ -1,6 +1,5 @@
 import rclpy
 from rclpy.node import Node
-from rclpy.qos import QoSProfile, QoSReliabilityPolicy, QoSHistoryPolicy, QoSDurabilityPolicy
 
 from std_msgs.msg import String
 from geometry_msgs.msg import PoseStamped, TransformStamped
@@ -14,13 +13,6 @@ class SLAM_Master(Node):
 
     def __init__(self):
         super().__init__('slam_master')
-
-        # QOS Policies for TF Broadcaster
-        # qos_profile = QoSProfile(
-        #     durability=QoSDurabilityPolicy.RMW_QOS_POLICY_DURABILITY_TRANSIENT_LOCAL,
-        #     history=QoSHistoryPolicy.RMW_QOS_POLICY_HISTORY_KEEP_LAST,
-        #     depth=1
-        # )
 
         # Init Publisher
         self.publisher_ = self.create_publisher(String, 'topic', 10)
@@ -36,9 +28,6 @@ class SLAM_Master(Node):
         self.vo_pose_subscriber  # prevent unused variable warning
 
         # TF STUFF
-        # self.prev_t_0 = TransformStamped()
-        # self.prev_t_1 = TransformStamped()
-
         # Initialize the transform broadcaster
         self.tf_broadcaster = TransformBroadcaster(self)
 
@@ -52,16 +41,13 @@ class SLAM_Master(Node):
             self.prev_t.append(TransformStamped())
             self.publish_markers.append(False)
 
-        # self.target_frame = self.declare_parameter(
-        #   'target_frame', 'tag36h11:0_transient').get_parameter_value().string_value
-
         self.tf_buffer = Buffer()
         self.tf_listener = TransformListener(self.tf_buffer, self)
 
         
 
     def vo_pose_callback(self, msg):
-        msgnew = msg
+        pass
         #self.get_logger().info('I heard: "%s"' % msg.pose)
 
     
